@@ -4,6 +4,7 @@ namespace App\Filament\Mahasiswa\Resources;
 
 use App\Filament\Mahasiswa\Resources\PrestasiResource\Pages;
 use App\Filament\Mahasiswa\Resources\PrestasiResource\RelationManagers;
+use App\Filament\Mahasiswa\Traits\FilterByMahasiswaTrait;
 use App\Models\Prestasi;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PrestasiResource extends Resource
 {
+    use FilterByMahasiswaTrait;
     protected static ?string $model = Prestasi::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -26,37 +28,41 @@ class PrestasiResource extends Resource
     protected static ?string $navigationLabel = 'Data Prestasi';
     protected static ?string $navigationGroup = 'Pengajuan Prestasi';
 
+    public static function mutateFormDataBeforeCreate(array $data): array
+    {
+        $user = auth()->user();
+        $mahasiswa = $user->mahasiswa;
+
+        $data['user_id'] = $user->id;
+        $data['mahasiswa_id'] = $mahasiswa?->id;
+
+        return $data;
+    }
     public static function getNavigationBadge(): ?string
     {
-        return static::$model::query()
-            ->where('mahasiswa_id', auth()->user()->mahasiswa->id)
-            ->whereIn('status', ['approved', 'rejected']) // selain pending dan diajukan
-            ->count()
-            ?: null;
-    }
-    public static function getNavigationBadgeColor(): ?string
-    {
-        $userId = auth()->user()->mahasiswa->id;
+        $user = auth()->user();
 
-        $adaDitolak = static::$model::query()
-            ->where('mahasiswa_id', $userId)
-            ->where('status', 'rejected')
-            ->exists();
-
-        if ($adaDitolak) {
-            return 'danger';
+        if (!$user || !$user->mahasiswa) {
+            return null; // Kalau belum login atau belum ada relasi mahasiswa, badge gak tampil
         }
 
-        $adaDisetujui = static::$model::query()
+        $userId = $user->mahasiswa->id;
+
+        $approved = static::$model::query()
             ->where('mahasiswa_id', $userId)
             ->where('status', 'approved')
-            ->exists();
+            ->count();
 
-        if ($adaDisetujui) {
-            return 'success';
+        $rejected = static::$model::query()
+            ->where('mahasiswa_id', $userId)
+            ->where('status', 'rejected')
+            ->count();
+
+        if ($approved === 0 && $rejected === 0) {
+            return null;
         }
 
-        return 'gray'; // fallback kalau gak ada
+        return ($approved ? '✔️' . $approved : '') . ' ' . ($rejected ? '❌' . $rejected : '');
     }
 
 
@@ -71,7 +77,7 @@ class PrestasiResource extends Resource
                 ->searchable()
                 ->required()
                 ->disabled() // diasumsikan sudah login sebagai mahasiswa
-                ->default(auth()->user()->mahasiswa->id),
+                ->default(optional(auth()->user()->mahasiswa)->id),
 
             TextInput::make('nama_prestasi')->required(),
             TextInput::make('nama_prestasi_en')->required(),
@@ -184,6 +190,10 @@ class PrestasiResource extends Resource
                     }),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
+
+                Tables\Actions\DeleteAction::make(),
+
                 Tables\Actions\EditAction::make(),
 
                 Tables\Actions\Action::make('lengkapiBerkas')

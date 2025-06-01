@@ -3,6 +3,7 @@
 namespace App\Filament\Mahasiswa\Resources;
 
 use App\Filament\Mahasiswa\Resources\MahasiswaResource\Pages;
+use App\Filament\Mahasiswa\Traits\FilterByMahasiswaTrait;
 use App\Models\Mahasiswa;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,6 +13,7 @@ use Filament\Tables\Table;
 
 class MahasiswaResource extends Resource
 {
+    use FilterByMahasiswaTrait;
     protected static ?string $model = Mahasiswa::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -94,7 +96,12 @@ class MahasiswaResource extends Resource
     {
         return [];
     }
-
+    public static function canCreate(): bool
+    {
+        // Cek kalau user sudah punya data Mahasiswa
+        $userId = auth()->id();
+        return !Mahasiswa::where('user_id', $userId)->exists();
+    }
     public static function getPages(): array
     {
         return [

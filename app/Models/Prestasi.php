@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+
 
 class Prestasi extends Model
 {
@@ -48,12 +50,35 @@ class Prestasi extends Model
                 $model->id = (string) Str::uuid();
             }
         });
+
+        static::deleting(function ($model) {
+            if ($model->berkasPrestasi) {
+                // Hapus semua file jika ada di storage
+                if ($model->berkasPrestasi->bukti_berkas && Storage::exists($model->berkasPrestasi->bukti_berkas)) {
+                    Storage::delete($model->berkasPrestasi->bukti_berkas);
+                }
+                if ($model->berkasPrestasi->foto_upp && Storage::exists($model->berkasPrestasi->foto_upp)) {
+                    Storage::delete($model->berkasPrestasi->foto_upp);
+                }
+                if ($model->berkasPrestasi->surat_tugas && Storage::exists($model->berkasPrestasi->surat_tugas)) {
+                    Storage::delete($model->berkasPrestasi->surat_tugas);
+                }
+
+                // Hapus record berkas prestasi
+                $model->berkasPrestasi->delete();
+            }
+        });
     }
 
     // Relasi ke Mahasiswa
     public function mahasiswa()
     {
         return $this->belongsTo(Mahasiswa::class);
+    }
+    // Tambah relasi ke User
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function berkasPrestasi()

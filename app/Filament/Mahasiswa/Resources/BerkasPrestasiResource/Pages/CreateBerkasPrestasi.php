@@ -16,6 +16,18 @@ class CreateBerkasPrestasi extends CreateRecord
     {
         parent::mount();
 
+        // Cek apakah user sudah punya data mahasiswa
+        if (! auth()->user()->mahasiswa) {
+            Notification::make()
+                ->title('Data Mahasiswa belum lengkap')
+                ->body('Silakan lengkapi data Mahasiswa terlebih dahulu.')
+                ->danger()
+                ->persistent()
+                ->send();
+
+            $this->redirect(route('filament.mahasiswa.resources.mahasiswas.create'));
+        }
+
         $prestasiId = request()->query('prestasi_id');
 
         if (! $prestasiId || ! Prestasi::find($prestasiId)) {
@@ -34,6 +46,7 @@ class CreateBerkasPrestasi extends CreateRecord
         ]);
     }
 
+
     protected function afterCreate(): void
     {
         // Tandai prestasi sebagai lengkap
@@ -45,7 +58,7 @@ class CreateBerkasPrestasi extends CreateRecord
         // Redirect ke halaman daftar prestasi atau halaman review
         $this->redirect(route('filament.mahasiswa.resources.prestasis.index'));
     }
-    
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $prestasiId = request()->query('prestasi_id');

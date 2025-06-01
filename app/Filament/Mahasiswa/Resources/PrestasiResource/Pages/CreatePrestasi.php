@@ -21,6 +21,25 @@ class CreatePrestasi extends CreateRecord
         ]);
     }
 
+    public function mount(): void
+    {
+        parent::mount();
+
+        $user = Auth::user();
+        $mahasiswa = Mahasiswa::where('user_id', $user->id)->first();
+
+        if (! $mahasiswa) {
+            \Filament\Notifications\Notification::make()
+                ->title('Data Mahasiswa belum lengkap')
+                ->body('Silakan lengkapi data Mahasiswa terlebih dahulu.')
+                ->danger()
+                ->persistent()
+                ->send();
+
+            $this->redirect(route('filament.mahasiswa.resources.mahasiswas.create'));
+        }
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $user = Auth::user();

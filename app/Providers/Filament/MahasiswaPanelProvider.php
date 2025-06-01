@@ -33,9 +33,10 @@ class MahasiswaPanelProvider extends PanelProvider
             ->id('mahasiswa')
             ->path('mahasiswa')
             ->colors([
-                'red' => Color::Amber,
+                 'primary' => '#69084D',
             ])
-            ->login()
+            ->registration()
+            ->login(CustomLogin::class)
             ->authGuard('mahasiswa')
 
             ->brandLogo(fn() => view('filament.mahasiswa.logo'))

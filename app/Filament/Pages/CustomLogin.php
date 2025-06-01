@@ -22,7 +22,7 @@ class CustomLogin extends BaseLogin
 
     public function getSubheading(): string|Htmlable
     {
-        return 'Silakan masuk untuk melanjutkan';
+        return false;
     }
     protected function getFormSchema(): array
     {
