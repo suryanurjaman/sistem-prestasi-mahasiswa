@@ -15,10 +15,16 @@ class BerkasPrestasi extends Model
     protected $fillable = [
         'id',
         'prestasi_id',
+        'sertifikat_kelulusan',
         'bukti_berkas',
-        'link_berkas',
+        'link_sertifikat_list',
         'foto_upp',
         'surat_tugas',
+    ];
+
+    protected $casts = [
+        'sertifikat_kelulusan' => 'array',
+        'link_sertifikat_list' => 'array',
     ];
 
     public function getBuktiBerkasUrlAttribute()

@@ -1,14 +1,14 @@
-<x-filament::page class="filament-page min-h-screen bg-gray-50 dark:bg-gray-900 py-10 px-6">
+<x-filament::page class="filament-page min-h-screen bg-gray-50 py-10 px-6">
     <div class="max-w-5xl w-full mx-auto space-y-6">
         <!-- Judul besar -->
         <div class=" mb-10">
-            <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white">Jenis Berkas Pendukung Prestasi Mahasiswa</h1>
+            <h1 class="text-3xl font-extrabold text-gray-900">Jenis Berkas Pendukung Prestasi Mahasiswa</h1>
         </div>
 
         <div class="space-y-4 mt-52">
             {{-- Item 1 --}}
-            <div class="flex items-center space-x-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-default">
-                <div class="flex-shrink-0 text-indigo-600 dark:text-indigo-400 text-4xl">
+            <div class="flex items-center space-x-4 p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-default">
+                <div class="flex-shrink-0 text-indigo-600 text-4xl">
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="h-12 w-12" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2" style="stroke:currentColor;">
@@ -16,14 +16,14 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Bukti Prestasi</h3>
-                    <p class="text-gray-600 dark:text-gray-200 mt-1">File PDF atau gambar (jpg, png) sebagai bukti prestasi.</p>
+                    <h3 class="text-xl font-semibold text-gray-900">Bukti Prestasi</h3>
+                    <p class="text-gray-600 mt-1">File PDF atau gambar (jpg, png) sebagai bukti prestasi.</p>
                 </div>
             </div>
 
             {{-- Item 2 --}}
-            <div class="flex items-center space-x-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-default">
-                <div class="flex-shrink-0 text-green-600 dark:text-green-400 text-4xl">
+            <div class="flex items-center space-x-4 p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-default">
+                <div class="flex-shrink-0 text-green-600 text-4xl">
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="h-12 w-12" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2" style="stroke:currentColor;">
@@ -31,14 +31,14 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Link Sertifikat (Opsional)</h3>
-                    <p class="text-gray-600 dark:text-gray-200 mt-1">Masukkan URL sertifikat online jika ada.</p>
+                    <h3 class="text-xl font-semibold text-gray-900">Link Sertifikat (Opsional)</h3>
+                    <p class="text-gray-600 mt-1">Masukkan URL sertifikat online jika ada.</p>
                 </div>
             </div>
 
             {{-- Item 3 --}}
-            <div class="flex items-center space-x-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-default">
-                <div class="flex-shrink-0 text-yellow-500 dark:text-yellow-400 text-4xl">
+            <div class="flex items-center space-x-4 p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-default">
+                <div class="flex-shrink-0 text-yellow-500 text-4xl">
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="h-12 w-12" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2" style="stroke:currentColor;">
@@ -47,14 +47,14 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Foto Upacara Penyerahan Penghargaan (Opsional)</h3>
-                    <p class="text-gray-600 dark:text-gray-200 mt-1">Foto saat menerima penghargaan sebagai dokumentasi.</p>
+                    <h3 class="text-xl font-semibold text-gray-900">Foto Upacara Penyerahan Penghargaan (Opsional)</h3>
+                    <p class="text-gray-600 mt-1">Foto saat menerima penghargaan sebagai dokumentasi.</p>
                 </div>
             </div>
 
             {{-- Item 4 --}}
-            <div class="flex items-center space-x-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-default">
-                <div class="flex-shrink-0 text-red-600 dark:text-red-400 text-4xl">
+            <div class="flex items-center space-x-4 p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-default">
+                <div class="flex-shrink-0 text-red-600 text-4xl">
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="h-12 w-12" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2" style="stroke:currentColor;">
@@ -62,8 +62,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Surat Tugas/Izin</h3>
-                    <p class="text-gray-600 dark:text-gray-200 mt-1">Dokumen resmi surat tugas atau izin terkait prestasi.</p>
+                    <h3 class="text-xl font-semibold text-gray-900">Surat Tugas/Izin</h3>
+                    <p class="text-gray-600 mt-1">Dokumen resmi surat tugas atau izin terkait prestasi.</p>
                 </div>
             </div>
         </div>

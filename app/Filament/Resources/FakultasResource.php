@@ -18,6 +18,7 @@ class FakultasResource extends Resource
     protected static ?string $model = Fakultas::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Data Kampus';
 
     public static function form(Form $form): Form
     {

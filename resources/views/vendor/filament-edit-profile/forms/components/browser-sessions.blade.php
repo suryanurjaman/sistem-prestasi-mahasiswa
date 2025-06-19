@@ -5,7 +5,7 @@
     <div>
         <div class="">
             <div class="text-sm text-gray-600">
-                <div class="text-sm text-gray-600 dark:text-gray-400">
+                <div class="text-sm text-gray-600">
                     {{ __('filament-edit-profile::default.browser_sessions_content') }}
                 </div>
                 @if (count($data) > 0)
@@ -16,18 +16,18 @@
                                     @if ($session->device['desktop'])
                                         <x-filament::icon
                                             icon="heroicon-o-computer-desktop"
-                                            class="w-8 h-8 text-gray-500 dark:text-gray-400"
+                                            class="w-8 h-8 text-gray-500"
                                         />
                                     @else
                                         <x-filament::icon
                                             icon="heroicon-o-device-phone-mobile"
-                                            class="w-8 h-8 text-gray-500 dark:text-gray-400"
+                                            class="w-8 h-8 text-gray-500"
                                         />
                                     @endif
                                 </div>
 
                                 <div class="ms-3">
-                                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                                    <div class="text-sm text-gray-600">
                                         {{ $session->device['platform'] ? $session->device['platform'] : __('Unknown') }} - {{ $session->device['browser'] ? $session->device['browser'] : __('Unknown') }}
                                     </div>
 

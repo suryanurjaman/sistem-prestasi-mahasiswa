@@ -14,10 +14,6 @@ class Prestasi extends Model
 
     protected $table = 'prestasi';
 
-    protected $casts = [
-        'anggota_kelompok' => 'array',
-    ];
-
     protected $keyType = 'string';
     public $incrementing = false;
 
@@ -40,6 +36,15 @@ class Prestasi extends Model
         'pesan_admin',
         'is_complete',
     ];
+
+
+     // Gunakan $casts untuk tanggal
+    protected $casts = [
+        'anggota_kelompok' => 'array',
+        'tanggal_mulai'    => 'date',
+        'tanggal_selesai'  => 'date',
+    ];
+
 
     protected static function boot()
     {

@@ -57,6 +57,15 @@ class MahasiswaResource extends Resource
                     ->preload()
                     ->label('Ormawa')
                     ->nullable(),
+                // ⬇️ Tambahkan Upload Foto
+                Forms\Components\FileUpload::make('foto_mahasiswa')
+                    ->label('Foto Mahasiswa')
+                    ->image()
+                    ->disk('public')
+                    ->directory('foto-mahasiswa')
+                    ->imagePreviewHeight('150')
+                    ->maxSize(3024)
+                    ->nullable(),
             ]);
     }
 

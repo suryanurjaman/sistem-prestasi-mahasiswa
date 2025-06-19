@@ -16,18 +16,26 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
-
+use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\SelectFilter;
 
 class EvaluasiPrestasiResource extends Resource
 {
     protected static ?string $model = Prestasi::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel = 'Evaluasi Data Prestasi';
+    protected static ?string $navigationGroup = 'Manajemen Data Prestasi';
+
 
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['berkasPrestasi', 'mahasiswa.user']);
+            // hanya ambil yang status-nya bukan 'pending'
+            ->where('status', '!=', 'pending')
+            // tetap eager‑load relasi
+            ->with(['berkasPrestasi', 'mahasiswa.user', 'mahasiswa.prodi', 'mahasiswa.fakultas']);
     }
 
     protected function mutateFormDataBeforeSave(array $data): array
@@ -107,32 +115,86 @@ class EvaluasiPrestasiResource extends Resource
 
             Forms\Components\Section::make('Berkas Pendukung')
                 ->schema([
-                    Forms\Components\Placeholder::make('bukti_berkas')
-                        ->label('Bukti Berkas')
-                        ->content(fn($record) => $record->berkasPrestasi?->bukti_berkas
-                            ? new HtmlString('<a href="' . route('download.berkas', ['tipe' => 'bukti', 'id' => $record->id]) . '" target="_blank" class="text-primary-600 underline">Download Berkas</a>')
-                            : 'Berkas tidak ada')
+
+                    // Sertifikat Kelulusan
+                    Forms\Components\Placeholder::make('sertifikat_kelulusan')
+                        ->label('Sertifikat Kelulusan')
+                        ->content(function ($record) {
+                            $sertifikatList = $record->berkasPrestasi?->sertifikat_kelulusan;
+
+                            if (!is_array($sertifikatList) || count($sertifikatList) === 0) {
+                                return 'Tidak ada sertifikat kelulusan.';
+                            }
+
+                            $html = '<ul class="list-disc pl-8">';
+                            foreach ($sertifikatList as $filename) {
+                                $url = Storage::url("berkas-prestasi/sertifikat_kelulusan/{$filename}");
+                                $shortName = \Illuminate\Support\Str::limit($filename, 50);
+                                $html .= "<li><a href=\"{$url}\" download class=\"text-primary-600 underline\"> {$shortName}</a></li>";
+                            }
+                            $html .= '</ul>';
+
+                            return new HtmlString($html);
+                        })
                         ->columnSpanFull(),
 
+                    Forms\Components\Placeholder::make('bukti_berkas')
+                        ->label('Bukti sertifikat kegiatan disatukan dalam bentuk file PDF')
+                        ->content(function ($record) {
+                            $url = $record->berkasPrestasi?->buktiBerkasUrl; // accessor otomatis
+                            return $url
+                                ? new HtmlString("<a href=\"{$url}\" download class=\"text-primary-600 underline\">Download Berkas</a>")
+                                : 'Berkas tidak ada';
+                        })
+                        ->columnSpanFull(),
+
+                    // Foto Upacara
                     Forms\Components\Placeholder::make('foto_upp')
                         ->label('Foto Upacara')
-                        ->content(fn($record) => $record->berkasPrestasi?->foto_upp
-                            ? new HtmlString('<a href="' . route('download.berkas', ['tipe' => 'foto', 'id' => $record->id]) . '" target="_blank" class="text-primary-600 underline">Download Berkas</a>')
-                            : 'Berkas tidak ada')
+                        ->content(function ($record) {
+                            $url = $record->berkasPrestasi?->fotoUppUrl; // accessor getFotoUppUrlAttribute()
+                            return $url
+                                ? new HtmlString(
+                                    "<a href=\"{$url}\" download class=\"text-primary-600 underline\">Download Foto</a>"
+                                )
+                                : 'Berkas tidak ada';
+                        })
                         ->columnSpanFull(),
 
+                    // Surat Tugas
                     Forms\Components\Placeholder::make('surat_tugas')
                         ->label('Surat Tugas')
-                        ->content(fn($record) => $record->berkasPrestasi?->surat_tugas
-                            ? new HtmlString('<a href="' . route('download.berkas', ['tipe' => 'surat', 'id' => $record->id]) . '" target="_blank" class="text-primary-600 underline">Download Berkas</a>')
-                            : 'Berkas tidak ada')
+                        ->content(function ($record) {
+                            $url = $record->berkasPrestasi?->suratTugasUrl; // accessor getSuratTugasUrlAttribute()
+                            return $url
+                                ? new HtmlString(
+                                    "<a href=\"{$url}\" download class=\"text-primary-600 underline\">Download Surat</a>"
+                                )
+                                : 'Berkas tidak ada';
+                        })
                         ->columnSpanFull(),
 
-                    Forms\Components\Placeholder::make('link_berkas')
+                    // Link Berkas (jika ada URL eksternal)
+                    Forms\Components\Placeholder::make('link_sertifikat_list')
                         ->label('Link Berkas')
-                        ->content(fn($record) => $record->berkasPrestasi?->link_berkas
-                            ? new HtmlString('<a href="' . $record->berkasPrestasi?->link_berkas . '" target="_blank" class="text-blue-600 underline">Lihat Link</a>')
-                            : 'Berkas tidak ada')
+                        ->content(function ($record) {
+                            $links = $record->berkasPrestasi?->link_sertifikat_list;
+
+                            if (!is_array($links) || count($links) === 0) {
+                                return 'Berkas tidak ada';
+                            }
+
+                            $html = '<ul class="list-disc pl-4">';
+                            foreach ($links as $item) {
+                                if (is_array($item) && isset($item['url'])) {
+                                    $shortUrl = Str::limit($item['url'], 50);
+                                    $html .= "<li><a href=\"{$item['url']}\" target=\"_blank\" class=\"text-blue-600 underline\">{$shortUrl}</a></li>";
+                                }
+                            }
+                            $html .= '</ul>';
+
+                            return new HtmlString($html);
+                        })
                         ->columnSpanFull(),
                 ])->columns(1),
         ]);
@@ -144,7 +206,8 @@ class EvaluasiPrestasiResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('mahasiswa.nim')
-                    ->label('NIM'),
+                    ->label('NIM')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('mahasiswa.user.name')
                     ->label('Nama Mahasiswa')
                     ->searchable(),
@@ -175,40 +238,49 @@ class EvaluasiPrestasiResource extends Resource
                     ])
                     ->sortable()
                     ->searchable(),
-
-                // // FILE: BUKTI BERKAS
-                // Tables\Columns\TextColumn::make('berkasPrestasi.bukti_berkas')
-                //     ->label('Bukti')
-                //     ->getStateUsing(fn($record) => $record->berkasPrestasi?->bukti_berkas ? 'Download Berkas' : 'Tidak ada berkas')
-                //     ->url(fn($record) => $record->berkasPrestasi?->bukti_berkas ? route('download.berkas', ['tipe' => 'bukti', 'id' => $record->id]) : null, true)
-                //     ->openUrlInNewTab()
-                //     ->color(fn($record) => $record->berkasPrestasi?->bukti_berkas ? 'primary' : 'secondary'),
-
-                // // FILE: FOTO UPACARA
-                // Tables\Columns\TextColumn::make('berkasPrestasi.foto_upp')
-                //     ->label('Foto')
-                //     ->getStateUsing(fn($record) => $record->berkasPrestasi?->foto_upp ? 'Download Berkas' : 'Tidak ada berkas')
-                //     ->url(fn($record) => $record->berkasPrestasi?->foto_upp ? route('download.berkas', ['tipe' => 'foto', 'id' => $record->id]) : null, true)
-                //     ->openUrlInNewTab()
-                //     ->color(fn($record) => $record->berkasPrestasi?->foto_upp ? 'primary' : 'secondary'),
-
-                // // FILE: SURAT TUGAS
-                // Tables\Columns\TextColumn::make('berkasPrestasi.surat_tugas')
-                //     ->label('Surat Tugas')
-                //     ->getStateUsing(fn($record) => $record->berkasPrestasi?->surat_tugas ? 'Download Berkas' : 'Tidak ada berkas')
-                //     ->url(fn($record) => $record->berkasPrestasi?->surat_tugas ? route('download.berkas', ['tipe' => 'surat', 'id' => $record->id]) : null, true)
-                //     ->openUrlInNewTab()
-                //     ->color(fn($record) => $record->berkasPrestasi?->surat_tugas ? 'primary' : 'secondary'),
-
-                // // FILE: LINK BERKAS
-                // Tables\Columns\TextColumn::make('berkasPrestasi.link_berkas')
-                //     ->label('Link Berkas')
-                //     ->getStateUsing(fn($record) => $record->berkasPrestasi?->link_berkas ? 'Lihat Link' : 'Tidak ada berkas')
-                //     ->url(fn($record) => $record->berkasPrestasi?->link_berkas ?: null, true)
-                //     ->openUrlInNewTab()
-                //     ->color(fn($record) => $record->berkasPrestasi?->link_berkas ? 'info' : 'secondary'),
-
             ])
+            ->filters([
+                SelectFilter::make('status')
+                    ->label('Status Pengajuan')
+                    ->options([
+                        'diajukan'  => 'Diajukan',
+                        'approved'  => 'Disetujui',
+                        'rejected'  => 'Ditolak',
+                    ]),
+
+                SelectFilter::make('mahasiswa.prodi_id')
+                    ->label('Program Studi')
+                    ->relationship('mahasiswa.prodi', 'nama'),
+
+                SelectFilter::make('mahasiswa.fakultas_id')
+                    ->label('Fakultas')
+                    ->relationship('mahasiswa.fakultas', 'nama'),
+
+                SelectFilter::make('tingkat')
+                    ->label('Tingkat')
+                    ->options([
+                        'Internasional' => 'Internasional',
+                        'Nasional' => 'Nasional',
+                        'Provinsi' => 'Provinsi',
+                        'Kota/Kabupaten' => 'Kota/Kabupaten',
+                        'Perguruan Tinggi' => 'Perguruan Tinggi',
+                    ]),
+
+                SelectFilter::make('jenis_prestasi')
+                    ->label('Jenis Prestasi')
+                    ->options(fn() => Prestasi::query()
+                        ->distinct()
+                        ->pluck('jenis_prestasi', 'jenis_prestasi')
+                        ->filter()),
+
+                SelectFilter::make('kategori_prestasi')
+                    ->label('Kategori Prestasi')
+                    ->options(fn() => Prestasi::query()
+                        ->distinct()
+                        ->pluck('kategori_prestasi', 'kategori_prestasi')
+                        ->filter()),
+            ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make()->label('Evaluasi'),
             ])

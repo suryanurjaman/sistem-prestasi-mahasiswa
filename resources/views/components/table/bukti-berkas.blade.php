@@ -5,7 +5,7 @@ $url = \Storage::url($state);
 @endphp
 
 @if(blank($state))
-<div class="fi-ta-placeholder text-sm leading-6 text-gray-400 dark:text-gray-500">
+<div class="fi-ta-placeholder text-sm leading-6 text-gray-400">
     Berkas tidak ada
 </div>
 @elseif(in_array($ext, ['jpg', 'jpeg', 'png']))

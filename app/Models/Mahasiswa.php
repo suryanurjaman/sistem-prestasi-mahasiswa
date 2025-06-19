@@ -24,6 +24,7 @@ class Mahasiswa extends Model
         'fakultas_id',
         'prodi_id',
         'ormawa_id',
+        'foto_mahasiswa',
     ];
 
     protected static function boot()
@@ -67,5 +68,15 @@ class Mahasiswa extends Model
     public function anggotaPrestasi()
     {
         return $this->hasMany(AnggotaPrestasi::class, 'mahasiswa_id');
+    }
+    // Relasi ke semua prestasi mahasiswa
+    public function prestasi()
+    {
+        return $this->hasMany(Prestasi::class, 'mahasiswa_id', 'id');
+    }
+
+    public function ukm()
+    {
+        return $this->belongsTo(Ukm::class, 'ukm_id');
     }
 }

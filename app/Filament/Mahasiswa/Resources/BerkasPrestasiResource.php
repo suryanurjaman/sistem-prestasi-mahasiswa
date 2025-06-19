@@ -28,25 +28,42 @@ class BerkasPrestasiResource extends Resource
         return $form->schema([
             Hidden::make('prestasi_id')->required(),
 
-            FileUpload::make('bukti_berkas')
-                ->label('Bukti Prestasi (PDF/IMG)')
-                ->acceptedFileTypes(['application/pdf', 'image/png', 'image/jpg', 'image/jpeg'])
-                ->required(),
-
-            TextInput::make('link_berkas')
-                ->label('Link Sertifikat (jika ada)')
-                ->url()
-                ->nullable(),
+            FileUpload::make('sertifikat_kelulusan')
+                ->label('Bukti sertifikat kelulusan dalam format Gambar (bisa lebih )')
+                ->multiple()
+                ->image()
+                ->acceptedFileTypes(['image/png', 'image/jpg', 'image/jpeg'])
+                ->required(), // atau nullable() kalau tidak wajib
 
             FileUpload::make('foto_upp')
                 ->label('Foto Upacara Penyerahan Penghargaan (jika ada)')
                 ->image()
                 ->nullable(),
 
-            FileUpload::make('surat_tugas')
-                ->label('Surat Tugas/Izin')
-                ->acceptedFileTypes(['application/pdf', 'image/png', 'image/jpg', 'image/jpeg'])
+            FileUpload::make('bukti_berkas')
+                ->label('Sertifikat kegiatan disatukan dalam format PDF')
+                ->acceptedFileTypes(['application/pdf'])
                 ->required(),
+
+            FileUpload::make('surat_tugas')
+                ->label('Surat Tugas/Izin (PDF)')
+                ->acceptedFileTypes(['application/pdf'])
+                ->required(), // atau nullable()
+
+            Forms\Components\Repeater::make('link_sertifikat_list')
+                ->label('Link Sertifikat (kosongkan jika tidak ada)')
+                ->schema([
+                    TextInput::make('url')
+                        ->label('Link Sertifikat')
+                        ->url()
+                        ->required(),
+                ])
+                ->addActionLabel('Tambah Link')
+                ->default([]) // Tambahkan ini
+                ->columns(1),
+
+
+
         ]);
     }
 
@@ -66,13 +83,17 @@ class BerkasPrestasiResource extends Resource
                         'class' => 'p-0 m-0 text-left align-middle',
                     ]),
 
-                Tables\Columns\TextColumn::make('link_berkas')
-                    ->label('Link Sertifikat (jika ada)')
-                    ->url(fn($record) => $record->link_berkas)
-                    ->openUrlInNewTab()
+                Tables\Columns\TextColumn::make('surat_tugas')
+                    ->label('Surat Tugas')
                     ->placeholder('Berkas tidak ada')
-                    ->limit(30)
-                    ->extraAttributes(['class' => 'text-left']),
+                    ->view('components.table.bukti-berkas')
+                    ->extraAttributes([
+                        'class' => 'p-0 m-0 text-left align-middle',
+                    ]),
+
+                Tables\Columns\ViewColumn::make('sertifikat_kelulusan')
+                    ->label('Sertifikat Kelulusan')
+                    ->view('components.table.sertifikat-kelulusan'),
 
                 Tables\Columns\TextColumn::make('foto_upp')
                     ->label('Foto pengesahan (jika ada)')
@@ -82,13 +103,11 @@ class BerkasPrestasiResource extends Resource
                         'class' => 'p-0 m-0 text-left align-middle',
                     ]),
 
-                Tables\Columns\TextColumn::make('surat_tugas')
-                    ->label('Surat Tugas')
-                    ->placeholder('Berkas tidak ada')
-                    ->view('components.table.bukti-berkas')
-                    ->extraAttributes([
-                        'class' => 'p-0 m-0 text-left align-middle',
-                    ]),
+                Tables\Columns\ViewColumn::make('link_sertifikat_list')
+                    ->label('Link Sertifikat')
+                    ->view('components.table.link-sertifikat')
+                    ->extraAttributes(['class' => 'text-left']),
+
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
